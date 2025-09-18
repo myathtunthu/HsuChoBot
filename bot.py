@@ -2,10 +2,14 @@ import telebot
 from telebot import types
 import time
 import os
+from flask import Flask, request  # ဒီ line ကိုမဖျက်ပါနဲ့
 
 # ==================== YOUR BOT TOKEN ====================
 BOT_TOKEN = "8234675036:AAFIWLxSxeaT0-VGt_wUwDySCJbHS_0NTN0"
 # ========================================================
+
+# Create Flask app for Render port binding
+app = Flask(__name__)
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -334,3 +338,4 @@ if __name__ == "__main__":
     except Exception as e:
         print("Bot polling error:", e)
         time.sleep(5)
+
