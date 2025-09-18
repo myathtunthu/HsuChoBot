@@ -2,14 +2,10 @@ import telebot
 from telebot import types
 import time
 import os
-from flask import Flask, request
 
 # ==================== YOUR BOT TOKEN ====================
 BOT_TOKEN = "8234675036:AAFIWLxSxeaT0-VGt_wUwDySCJbHS_0NTN0"
 # ========================================================
-
-# Create Flask app for Render port binding
-app = Flask(__name__)
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -94,7 +90,7 @@ def send_help(message):
     help_text = """
 📖 *အဆင့် ၅ ဆင့်ဖြင့် ဆိုလာစနစ်တွက်ချက်နည်း*
 
-/calculate ကိုနှိပ်ပြီး စတင်တွက်ချက်ပါ။
+/calculate ကိုနှိပ်ပြီး စတင်�တွက်ချက်ပါ။
         """
     bot.reply_to(message, help_text, parse_mode='Markdown')
 
@@ -102,7 +98,7 @@ def send_help(message):
 def start_calculation(message):
     try:
         user_data[message.chat.id] = {}
-        msg = bot.reply_to(message, "🔌 *ကျေးဇူးပြု၍ စုစုပေါင်းဝပ်အား (W) ထည့်ပါ:*\n\nဥပမာ: 500", parse_mode='Markdown')
+        msg = bot.reply_to(message, "🔌 *ကျေးဇူးပြု၍ စုစုပေါင်း�ဝပ်အား (W) ထည့်ပါ:*\n\nဥပမာ: 500", parse_mode='Markdown')
         bot.register_next_step_handler(msg, ask_usage_hours)
     except Exception as e:
         print("Error in calculate:", e)
@@ -132,7 +128,7 @@ def ask_battery_type(message):
         hours = float(message.text)
         
         if hours <= 0 or hours > 24:
-            bot.reply_to(message, "❌ သုံးမည့်နာရီသည် 1 မှ 24 ကြားရှိရပါမယ်")
+            bot.reply_to(message, "❌ သုံးမည့်နာရီသည် 1 မှ 24 ကြား�ရှိရပါမယ်")
             return
             
         user_data[chat_id]['hours'] = hours
@@ -232,16 +228,16 @@ def process_battery_voltage(message):
 ⚡ *ဘက်ထရီဗို့အား:* {battery_voltage}V
 ☀️ *ဆိုလာပြား:* {panel_wattage}W
         
-📝 *စွမ်းအင်သုံး�စွဲမှုစာရင်း:*
+📝 *စွမ်းအင်သုံးစွဲမှုစာရင်း:*
 • *စုစုပေါင်းဝပ်အား:* {total_w}W
-• *နေ့စဉ်သုံးစွဲမည့်နာရီ:* {hours}h
+• *နေ့စဉ်သုံး�စွဲမည့်နာရီ:* {hours}h
 • *စုစုပေါင်းစွမ်းအင်သုံးစွဲမှု:* {daily_wh:.0f} Wh/ရက်
 
 🔋 *ဘက်ထရီအရွယ်အစား:* _{battery_ah:.0f} Ah {battery_voltage}V_
    - {battery_type} ဘက်ထရီ (DOD: {dod_factor*100:.0f}%)
    - {battery_ah:.0f}Ah ဘက်ထရီ ၁လုံး (သို့) သေးငယ်သောဘက်ထရီများကို parallel ချိတ်ဆက်အသုံးပြုနိုင်သည်
 
-☀️ *ဆိုလာပြားလိုအပ်ချက်:* _{solar_w:.0f} W_
+☀️ *ဆိုလာပြား�လိုအပ်ချက်:* _{solar_w:.0f} W_
    - {panel_wattage}W ဆိုလာပြား {num_panels} ချပ်
 
 ⚡ *အင်ဗာတာအရွယ်အစား:* _{inverter_w:.0f} W Pure Sine Wave_
@@ -306,7 +302,7 @@ def handle_recalculation(message):
             msg = bot.send_message(chat_id, "☀️ *ဆိုလာပြား Wattage အသစ်ရွေးချယ်ပါ*", reply_markup=markup, parse_mode='Markdown')
             bot.register_next_step_handler(msg, process_solar_panel)
             
-        elif choice == "🔄 အားလုံးပြန်ရွေးမယ်":
+        elif choice == "🔄 အားလုံးပြန်ရွေး�မယ်":
             # Restart completely
             user_data[chat_id] = {}
             bot.send_message(chat_id, "🔄 *စနစ်အသစ်တွက်ချက်မည်*", parse_mode='Markdown', reply_markup=types.ReplyKeyboardRemove())
@@ -330,31 +326,11 @@ def handle_all_messages(message):
     else:
         bot.reply_to(message, "🤖 Hsu Cho Solar Calculator မှ ကြိုဆိုပါတယ်!\n\nစတင်ရန် /start ကိုရိုက်ပို့ပါ")
 
-# Flask route for Render port binding
-@app.route('/')
-def home():
-    return "Hsu Cho Solar Calculator Bot is running!"
-
-# Webhook route for Telegram
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    if request.headers.get('content-type') == 'application/json':
-        json_string = request.get_data().decode('utf-8')
-        update = telebot.types.Update.de_json(json_string)
-        bot.process_new_updates([update])
-        return ''
-    else:
-        return 'Invalid content type', 403
-
-# Run the bot with Flask
+# Run the bot with polling (no Flask needed)
 if __name__ == "__main__":
-    # Remove webhook if it exists
-    bot.remove_webhook()
-    time.sleep(1)
-    
-    # Set webhook for Render
-    bot.set_webhook(url="https://your-render-app.onrender.com/webhook")
-    
-    # Start Flask app
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    try:
+        print("Bot is running with token:", BOT_TOKEN)
+        bot.polling(none_stop=True, interval=0, timeout=20)
+    except Exception as e:
+        print("Bot polling error:", e)
+        time.sleep(5)
